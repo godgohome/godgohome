@@ -1,0 +1,294 @@
+#include "stdio.h"
+#include "string.h"
+#include "stdlib.h"
+#include "conio.h"//��׼�������׼����⺯������getch��getchar�Ⱥ������������� 
+#define MAX 1024
+#define  books "books.txt"
+#define  booktow "booktow.txt"
+
+struct Bookinfo
+{
+	char isbn[20];
+	char  tail[40];
+	char name[40];
+	int count;
+};
+
+struct Book
+{
+	struct Bookinfo onebook;
+	struct Book *next;
+};
+
+int addbook(struct Bookinfo one,struct Book *firstptr)//ͼ��������� 
+{
+	while(firstptr->next!=0)
+	{
+		firstptr=firstptr->next;
+	}
+	firstptr->next=(struct Book *)malloc(sizeof(struct Book));
+	firstptr->next->onebook=one;
+	firstptr->next->next=NULL;
+	return 0;
+}
+
+void addbooks(struct Book *firstptr,FILE *fp)//�����鼮 
+{
+	struct Bookinfo one;
+	int i;
+	printf("ISBN:");
+	scanf("%s",one.isbn);
+	printf("����:");
+	scanf("%s",one.tail);
+	printf("����:");
+	scanf("%s",one.name);
+	i=addbook(one,firstptr);
+	if(i==0)
+	{
+		fprintf(fp,"\n%s %s %s %d",one.isbn,one.tail,one.name,0);
+		printf("ͼ�����ӳɹ�>_<\n");
+	}
+	else
+	{
+		printf("ͼ������ʧ��T_T\n");
+	}	
+}
+
+struct Book* query(struct Book *firstptr,char isbnot[])
+{
+	while(firstptr!=NULL)
+	{
+		if(strcmp(firstptr->onebook.isbn,isbnot)==0)
+			return firstptr;
+		else
+			firstptr=firstptr->next;
+	}
+	return NULL;
+}
+
+void querybook(struct Book *firstptr)
+{
+	char isbnot[20];
+	FILE *fp;
+	struct Book *adk;
+	printf("��������Ҫ�����鼮��ISBN��:");
+	scanf("%s",&isbnot);	
+	adk=query(firstptr,isbnot);
+	if(adk!=NULL)
+	{
+		printf("�ҵ���!!!\n");
+		printf("ISBN:%s\n",adk->onebook.isbn);
+		printf("����:%s\n",adk->onebook.tail);
+		printf("����:%s\n",adk->onebook.name);
+	}
+	else
+	{
+		printf("�ܱ�Ǹ�����޴���T_T\n");
+	}
+	
+}
+
+int Modify1(struct Book* firstptr,char ch[],struct Bookinfo onebook,FILE* fp)
+{
+	char d;
+	int i=1;
+	while(firstptr!=NULL)
+	{
+		if(strcmp(firstptr->onebook.isbn,ch)==0)
+		{
+			printf("���ҵ�Ŀ���鼮...\n");
+			printf("ISBN:%s\n",firstptr->onebook.isbn);
+			printf("����:%s\n",firstptr->onebook.tail);
+			printf("����:%s\n",firstptr->onebook.name);
+			printf("�Ƿ�ʼ�޸�(y/n):");//�޸���֤ 
+			scanf("%s",&d); 
+			while(d!='y'&&d!='n')
+			{
+				printf("������������������:");
+				scanf("%s",&d);
+			}
+			if(d=='y')
+			{
+				printf("�������µ�ISBN�ţ�");
+				scanf("%s",onebook.isbn);	 
+		    	printf("�������µ�������");
+				scanf("%s",onebook.tail);	 
+				printf("�������µ����ߣ�");
+				scanf("%s",onebook.name);
+				firstptr->onebook=onebook;//���޸ĺ�Ľṹ�帲�Ǵ��������ڵ� 
+				printf("�޸ĳɹ�>_<\n");
+			}
+			else
+				printf("ȡ���޸ĳɹ�>_<\n");
+			i=0;
+		}
+		fprintf(fp,"%s %s %s %d\n",firstptr->onebook.isbn,firstptr->onebook.tail,firstptr->onebook.name,firstptr->onebook.count);
+		//���޸ĺ���������Ǵ����ļ���
+		//�˴��ɸĽ�Ϊ��¼Ŀ����ṹ���ж��ٸ��ڵ�λ��������fseek���и��Ǵ��� 
+		firstptr=firstptr->next;
+	}
+	return i;
+}
+
+void Modify(struct Book *firstptr,FILE *fp)//�޸� 
+{
+	int i,j;
+	struct Book* book=firstptr;
+	char ch[20];
+	struct Bookinfo onebook;
+	printf("��������Ҫ�޸��鼮��ISBN��:");
+	scanf("%s",&ch);
+	if((fp=fopen(books,"w+"))==NULL)
+	{
+		printf("�ļ���ʧ��T_T\n");
+		exit(EXIT_FAILURE);
+	}
+	j=Modify1(firstptr,ch,onebook,fp);
+    if(i)
+	{
+		printf("�ܱ�Ǹ�����޴���T_T\n");
+	 } 
+}
+
+int Delete1(struct Book* firstptr,char ch[]) 
+{
+	while(firstptr!=NULL)
+	{
+		if(strcmp(firstptr->onebook.isbn,ch)==0)//��������һ�ڵ�֮�д�Ľṹ���е�ֵ���û�����Ҫɾ����ֵ���бȽ� 
+		{
+			firstptr->next=firstptr->next->next;//��������һ�ڵ��ڴ����������¸��ڵ����Դ��ɾ��Ч���������Ƚ�ƥ��Ľڵ�֮��Ľڵ㶼��ǰ�ƶ�����ƥ��ɾ���Ľڵ�
+			return 1;
+		}
+		else
+			firstptr=firstptr->next;
+	}
+	return 0;
+}
+
+void Delete(struct Book *firstptr,FILE *fp)
+/************************************************************************/
+/* ɾ���鼮����,ͨ��ISBNɾ�������ڵ�,ͬʱɾ���ļ��ж�Ӧ��Ϣ              */
+/* ɾ���ļ���һ��,�õ��Ǳ�����,����Ҫ����Ϣд�����ļ�,ɾ�����ļ�,������..*/
+/************************************************************************/ 
+{
+	int i,j;
+	struct Book* book=firstptr;
+	char ch[20];
+	struct Bookinfo onebook;
+	printf("��������Ҫɾ���鼮��ISBN��:");
+	scanf("%s",&ch);
+	j=Delete1(firstptr,ch);
+	if(j) 
+	{ 
+		FILE* fpbak;
+		if((fpbak=fopen(booktow,"a+"))==NULL)
+		{
+			printf("�ļ���ʧ��T_T\n");
+			exit(EXIT_FAILURE);
+		}
+		fseek(fp,0,0);
+		while((fscanf(fp,"%s %s %s %d\n",&onebook.isbn,&onebook.tail,&onebook.name,&onebook.count))!=EOF)
+		{
+			if(strcmp(onebook.isbn,ch)!=0)
+				fprintf(fpbak,"%s %s %s %d\n",onebook.isbn,onebook.tail,onebook.name,onebook.count);
+		}
+		fclose(fp);
+		fclose(fpbak);
+		if(remove(books))//ɾ���ļ� 
+		{
+			printf("�ļ�ɾ��ʧ��T_T\n");
+			exit(EXIT_FAILURE);
+		}
+		else
+			if(rename(booktow,books))//�ļ������� 
+			{
+				printf("�ļ�������ʧ��T_T\n");
+				exit(EXIT_FAILURE);
+			}
+		printf("ɾ���ɹ�>_<\n");
+	}
+	else
+	{
+		printf("�ܱ�Ǹ�����޴���T_T\n");
+	}
+}
+
+
+int menu()//�˵� 
+{
+	int ch;
+	printf(".................................\n");
+	printf("...��ӭ�����鼮¼��ϵͳ\n");
+	printf("...1.����¼���鼮��Ϣ\n");
+	printf("...2.��ѯ�鼮��Ϣ\n");
+	printf("...3.�޸��鼮��Ϣ\n");
+	printf("...4.ɾ���鼮��Ϣ\n");
+	printf("...5.�˳��鼮¼��ϵͳ\n");
+	printf(".................................\n");
+	printf("��ѡ����Ĳ�����");
+	//scanf("%d",&ch);
+	//getch();
+	return ch=getchar(); 
+	printf("\n\n");
+}
+
+int addEntry(struct Book*firstptr,FILE *fp)//�����ļ��д�ŵ���Ϣ 
+{
+	struct Bookinfo onebook;
+	while((fscanf(fp,"%s %s %s %d\n",&onebook.isbn,&onebook.tail,&onebook.name,&onebook.count))!=EOF)
+	{
+		while(firstptr->next!=0)
+			firstptr=firstptr->next;
+		firstptr->next=(struct Book *)malloc(sizeof(struct Book));
+		firstptr->next->onebook=onebook;
+		firstptr->next->next=NULL;
+	}
+	return 0;
+}
+
+int main(void)
+{
+	struct Book first;
+	strcpy(first.onebook.isbn,"123");
+	strcpy(first.onebook.tail,"aad");
+	strcpy(first.onebook.name,"bbc");
+	first.next=NULL;//���ٿռ� 
+	struct Book *firstptr=&first;
+	int ch;
+	FILE *fp;
+	if((fp=fopen(books,"a+"))==NULL)
+	{
+		printf("�ļ���ʧ��T_T\n");
+	    exit(EXIT_FAILURE);
+	}
+	addEntry(firstptr,fp);
+	while(ch!=5)
+	{
+		system("CLS"); //���� 
+		fflush(stdin); //������һ��getchar()�����ڻ������е�"\n" 
+		fflush(stdout);
+		ch=menu()-48;  
+		switch(ch)
+		{
+			case 1://����¼���鼮 
+				addbooks(firstptr,fp);
+				break;
+			case 2://��ѯ�鼮 
+				querybook(firstptr);
+				break;
+			case 3:// �޸��鼮 
+				Modify(firstptr,fp); 
+				break;
+			case 4://ɾ���鼮 
+				Delete(firstptr,fp);
+				break;
+			case 5://�˳��鼮 
+				break;
+			default:
+				printf("��������ȷ���!");
+		}
+		system("PAUSE");
+	 }
+	  
+}
+  
