@@ -1,7 +1,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdlib.h"
-#include "conio.h"//��׼�������׼����⺯������getch��getchar�Ⱥ������������� 
+#include "conio.h"
 #define MAX 1024
 #define  books "books.txt"
 #define  booktow "booktow.txt"
@@ -20,7 +20,7 @@ struct Book
 	struct Book *next;
 };
 
-int addbook(struct Bookinfo one,struct Book *firstptr)//ͼ��������� 
+int addbook(struct Bookinfo one,struct Book *firstptr)//
 {
 	while(firstptr->next!=0)
 	{
@@ -32,25 +32,25 @@ int addbook(struct Bookinfo one,struct Book *firstptr)//ͼ��������
 	return 0;
 }
 
-void addbooks(struct Book *firstptr,FILE *fp)//�����鼮 
+void addbooks(struct Book *firstptr,FILE *fp)//
 {
 	struct Bookinfo one;
 	int i;
 	printf("ISBN:");
 	scanf("%s",one.isbn);
-	printf("����:");
+	printf("Title:");
 	scanf("%s",one.tail);
-	printf("����:");
+	printf("The author:");
 	scanf("%s",one.name);
 	i=addbook(one,firstptr);
 	if(i==0)
 	{
 		fprintf(fp,"\n%s %s %s %d",one.isbn,one.tail,one.name,0);
-		printf("ͼ�����ӳɹ�>_<\n");
+		printf("Book entry successful>_<\n");
 	}
 	else
 	{
-		printf("ͼ������ʧ��T_T\n");
+		printf("Book entry failureT_T\n");
 	}	
 }
 
@@ -71,19 +71,19 @@ void querybook(struct Book *firstptr)
 	char isbnot[20];
 	FILE *fp;
 	struct Book *adk;
-	printf("��������Ҫ�����鼮��ISBN��:");
+	printf("Please enter the ISBN number of the book you are looking for:");
 	scanf("%s",&isbnot);	
 	adk=query(firstptr,isbnot);
 	if(adk!=NULL)
 	{
-		printf("�ҵ���!!!\n");
+		printf("To find the!!!\n");
 		printf("ISBN:%s\n",adk->onebook.isbn);
-		printf("����:%s\n",adk->onebook.tail);
-		printf("����:%s\n",adk->onebook.name);
+		printf("Title:%s\n",adk->onebook.tail);
+		printf("The author:%s\n",adk->onebook.name);
 	}
 	else
 	{
-		printf("�ܱ�Ǹ�����޴���T_T\n");
+		printf("I'm sorry, this book is unavailableT_T\n");
 	}
 	
 }
@@ -96,57 +96,56 @@ int Modify1(struct Book* firstptr,char ch[],struct Bookinfo onebook,FILE* fp)
 	{
 		if(strcmp(firstptr->onebook.isbn,ch)==0)
 		{
-			printf("���ҵ�Ŀ���鼮...\n");
+			printf("Target book found...\n");
 			printf("ISBN:%s\n",firstptr->onebook.isbn);
-			printf("����:%s\n",firstptr->onebook.tail);
-			printf("����:%s\n",firstptr->onebook.name);
-			printf("�Ƿ�ʼ�޸�(y/n):");//�޸���֤ 
+			printf("Title:%s\n",firstptr->onebook.tail);
+			printf("The author:%s\n",firstptr->onebook.name);
+			printf("Whether to start modifying(y/n):");//�޸���֤ 
 			scanf("%s",&d); 
 			while(d!='y'&&d!='n')
 			{
-				printf("������������������:");
+				printf("Incorrect input, please try again:");
 				scanf("%s",&d);
 			}
 			if(d=='y')
 			{
-				printf("�������µ�ISBN�ţ�");
+				printf("Please enter a new ISBN number:");
 				scanf("%s",onebook.isbn);	 
-		    	printf("�������µ�������");
+		    	printf("Please enter a new title:");
 				scanf("%s",onebook.tail);	 
-				printf("�������µ����ߣ�");
+				printf("Please enter a new author:");
 				scanf("%s",onebook.name);
-				firstptr->onebook=onebook;//���޸ĺ�Ľṹ�帲�Ǵ��������ڵ� 
-				printf("�޸ĳɹ�>_<\n");
+				firstptr->onebook=onebook;//Stores the modified structure overlay into the linked list node
+				printf("Modify the success>_<\n");
 			}
 			else
-				printf("ȡ���޸ĳɹ�>_<\n");
+				printf("Cancel modification successfully>_<\n");
 			i=0;
 		}
 		fprintf(fp,"%s %s %s %d\n",firstptr->onebook.isbn,firstptr->onebook.tail,firstptr->onebook.name,firstptr->onebook.count);
-		//���޸ĺ���������Ǵ����ļ���
-		//�˴��ɸĽ�Ϊ��¼Ŀ����ṹ���ж��ٸ��ڵ�λ��������fseek���и��Ǵ��� 
+		//Save the modified linked list overlay to a file,
 		firstptr=firstptr->next;
 	}
 	return i;
 }
 
-void Modify(struct Book *firstptr,FILE *fp)//�޸� 
+void Modify(struct Book *firstptr,FILE *fp)
 {
 	int i,j;
 	struct Book* book=firstptr;
 	char ch[20];
 	struct Bookinfo onebook;
-	printf("��������Ҫ�޸��鼮��ISBN��:");
+	printf("Please enter the ISBN number of the book you want to modify:");
 	scanf("%s",&ch);
 	if((fp=fopen(books,"w+"))==NULL)
 	{
-		printf("�ļ���ʧ��T_T\n");
+		printf("File opening failedT_T\n");
 		exit(EXIT_FAILURE);
 	}
 	j=Modify1(firstptr,ch,onebook,fp);
     if(i)
 	{
-		printf("�ܱ�Ǹ�����޴���T_T\n");
+		printf("I'm sorry, this book is unavailableT_T\n");
 	 } 
 }
 
@@ -154,9 +153,9 @@ int Delete1(struct Book* firstptr,char ch[])
 {
 	while(firstptr!=NULL)
 	{
-		if(strcmp(firstptr->onebook.isbn,ch)==0)//��������һ�ڵ�֮�д�Ľṹ���е�ֵ���û�����Ҫɾ����ֵ���бȽ� 
+		if(strcmp(firstptr->onebook.isbn,ch)==0)
 		{
-			firstptr->next=firstptr->next->next;//��������һ�ڵ��ڴ����������¸��ڵ����Դ��ɾ��Ч���������Ƚ�ƥ��Ľڵ�֮��Ľڵ㶼��ǰ�ƶ�����ƥ��ɾ���Ľڵ�
+			firstptr->next=firstptr->next->next;
 			return 1;
 		}
 		else
@@ -166,16 +165,12 @@ int Delete1(struct Book* firstptr,char ch[])
 }
 
 void Delete(struct Book *firstptr,FILE *fp)
-/************************************************************************/
-/* ɾ���鼮����,ͨ��ISBNɾ�������ڵ�,ͬʱɾ���ļ��ж�Ӧ��Ϣ              */
-/* ɾ���ļ���һ��,�õ��Ǳ�����,����Ҫ����Ϣд�����ļ�,ɾ�����ļ�,������..*/
-/************************************************************************/ 
 {
 	int i,j;
 	struct Book* book=firstptr;
 	char ch[20];
 	struct Bookinfo onebook;
-	printf("��������Ҫɾ���鼮��ISBN��:");
+	printf("Please enter the ISBN number of the book you want to delete:");
 	scanf("%s",&ch);
 	j=Delete1(firstptr,ch);
 	if(j) 
@@ -183,7 +178,7 @@ void Delete(struct Book *firstptr,FILE *fp)
 		FILE* fpbak;
 		if((fpbak=fopen(booktow,"a+"))==NULL)
 		{
-			printf("�ļ���ʧ��T_T\n");
+			printf("File opening failedT_T\n");
 			exit(EXIT_FAILURE);
 		}
 		fseek(fp,0,0);
@@ -194,45 +189,45 @@ void Delete(struct Book *firstptr,FILE *fp)
 		}
 		fclose(fp);
 		fclose(fpbak);
-		if(remove(books))//ɾ���ļ� 
+		if(remove(books))
 		{
-			printf("�ļ�ɾ��ʧ��T_T\n");
+			printf("File deletion failedT_T\n");
 			exit(EXIT_FAILURE);
 		}
 		else
-			if(rename(booktow,books))//�ļ������� 
+			if(rename(booktow,books))
 			{
-				printf("�ļ�������ʧ��T_T\n");
+				printf("Failed to rename fileT_T\n");
 				exit(EXIT_FAILURE);
 			}
-		printf("ɾ���ɹ�>_<\n");
+		printf("Delete the success>_<\n");
 	}
 	else
 	{
-		printf("�ܱ�Ǹ�����޴���T_T\n");
+		printf("I'm sorry, this book is unavailableT_T\n");
 	}
 }
 
 
-int menu()//�˵� 
+int menu()
 {
 	int ch;
 	printf(".................................\n");
-	printf("...��ӭ�����鼮¼��ϵͳ\n");
-	printf("...1.����¼���鼮��Ϣ\n");
-	printf("...2.��ѯ�鼮��Ϣ\n");
-	printf("...3.�޸��鼮��Ϣ\n");
-	printf("...4.ɾ���鼮��Ϣ\n");
-	printf("...5.�˳��鼮¼��ϵͳ\n");
+	printf("...Welcome to the book entry system\n");
+	printf("...1.Add input book information\n");
+	printf("...2.Search for Book Information\n");
+	printf("...3.Modify book information\n");
+	printf("...4.Delete book information\n");
+	printf("...5.Exit the book entry system\n");
 	printf(".................................\n");
-	printf("��ѡ����Ĳ�����");
+	printf("Please select your operation");
 	//scanf("%d",&ch);
 	//getch();
 	return ch=getchar(); 
 	printf("\n\n");
 }
 
-int addEntry(struct Book*firstptr,FILE *fp)//�����ļ��д�ŵ���Ϣ 
+int addEntry(struct Book*firstptr,FILE *fp)//Loads the information stored in the file
 {
 	struct Bookinfo onebook;
 	while((fscanf(fp,"%s %s %s %d\n",&onebook.isbn,&onebook.tail,&onebook.name,&onebook.count))!=EOF)
@@ -252,40 +247,40 @@ int main(void)
 	strcpy(first.onebook.isbn,"123");
 	strcpy(first.onebook.tail,"aad");
 	strcpy(first.onebook.name,"bbc");
-	first.next=NULL;//���ٿռ� 
+	first.next=NULL;
 	struct Book *firstptr=&first;
 	int ch;
 	FILE *fp;
 	if((fp=fopen(books,"a+"))==NULL)
 	{
-		printf("�ļ���ʧ��T_T\n");
+		printf("File opening failedT_T\n");
 	    exit(EXIT_FAILURE);
 	}
 	addEntry(firstptr,fp);
 	while(ch!=5)
 	{
-		system("CLS"); //���� 
-		fflush(stdin); //������һ��getchar()�����ڻ������е�"\n" 
+		system("CLS");
+		fflush(stdin); //Cleanup the "\n" left in the buffer by the last getchar()
 		fflush(stdout);
 		ch=menu()-48;  
 		switch(ch)
 		{
-			case 1://����¼���鼮 
+			case 1:
 				addbooks(firstptr,fp);
 				break;
-			case 2://��ѯ�鼮 
+			case 2:
 				querybook(firstptr);
 				break;
-			case 3:// �޸��鼮 
+			case 3:
 				Modify(firstptr,fp); 
 				break;
-			case 4://ɾ���鼮 
+			case 4:
 				Delete(firstptr,fp);
 				break;
-			case 5://�˳��鼮 
+			case 5:
 				break;
 			default:
-				printf("��������ȷ���!");
+				printf("Please enter the correct serial number!");
 		}
 		system("PAUSE");
 	 }
